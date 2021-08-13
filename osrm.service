@@ -1,0 +1,14 @@
+[Unit]
+Description=Open Source Routing Machine
+Wants=network-online.target
+After=network.target network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/osrm-routed --algorithm=MLD /home/ubuntu/osrm/map/indonesia-latest.osrm
+User=ubuntu
+Group=ubuntu
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,48 @@
+{
+    "variables": {
+        "time": ""
+    },
+    "builders": [
+        {
+            "type": "googlecompute",
+            "project_id": "my-project",
+            "machine_type": "e2-standard-4",
+            "disk_size": "30",
+            "source_image_family": "osrm-backend-binary",
+            "tags": [
+                "packer-instance"
+            ],
+            "region": "asia-southeast2",
+            "zone": "asia-southeast2-a",
+            "image_name": "osrm-backend-{{user `time`}}",
+            "image_description": "OSRM backend Indonesia Map",
+            "image_family": "osrm-backend",
+            "ssh_username": "ubuntu",
+            "account_file": "my-service-account.json",
+            "image_labels": {
+                "name": "osrm-backend-image",
+                "region": "indonesia"
+            }
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "file",
+            "source": "osrm.service",
+            "destination": "/home/ubuntu/osrm/"
+        },
+        {
+            "type": "shell",
+            "inline": [
+                "sleep 30",
+                "mkdir -p /home/ubuntu/osrm/map",
+                "cd /home/ubuntu/osrm/map",
+                "wget http://download.geofabrik.de/asia/indonesia-latest.osm.pbf",
+                "osrm-extract -p /home/ubuntu/osrm/osrm-backend-5.25.0/profiles/car.lua indonesia-latest.osm.pbf",
+                "osrm-partition indonesia-latest.osrm",
+                "osrm-customize indonesia-latest.osrm",
+                "sudo chown ubuntu:ubuntu /home/ubuntu/osrm/ -R"
+            ]
+        }
+    ]
+}

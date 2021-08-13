@@ -1,0 +1,47 @@
+{
+    "variables": {
+        "time": ""
+    },
+    "builders": [
+        {
+            "type": "googlecompute",
+            "project_id": "my-project",
+            "machine_type": "e2-standard-4",
+            "disk_size": "30",
+            "source_image_family": "ubuntu-2004-lts",
+            "tags": [
+                "packer-instance"
+            ],
+            "region": "asia-southeast2",
+            "zone": "asia-southeast2-a",
+            "image_name": "osrm-binary-v5250-{{user `time`}}",
+            "image_description": "Image pre-installed all OSRM binary v5.25.0",
+            "image_family": "osrm-backend-binary",
+            "ssh_username": "ubuntu",
+            "account_file": "my-service-account.json",
+            "image_labels": {
+                "name": "osrm-backend-binary-image"
+            }
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "inline": [
+                "sleep 30",
+                "sudo apt update",
+                "sudo apt install -y acl build-essential git cmake pkg-config libbz2-dev libxml2-dev libzip-dev libboost-all-dev lua5.2 liblua5.2-dev libtbb-dev",
+                "mkdir -p /home/ubuntu/osrm",
+                "cd /home/ubuntu/osrm/",
+                "wget https://github.com/Project-OSRM/osrm-backend/archive/v5.25.0.tar.gz",
+                "tar -xzf v5.25.0.tar.gz",
+                "cd osrm-backend-5.25.0",
+                "mkdir -p build",
+                "cd build",
+                "cmake ..",
+                "cmake --build .",
+                "sudo cmake --build . --target install"
+            ]
+        }
+    ]
+}
